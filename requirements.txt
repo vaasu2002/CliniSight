@@ -1,3 +1,6 @@
 pydantic
 typing-extensions
 redis
+psycopg2-binary
+openai
+python-dotenv
