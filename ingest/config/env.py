@@ -1,7 +1,7 @@
 import os
 import openai
 
-DB_CONN = os.getenv("DB_CONN", "postgresql://postgres:password@localhost:5432/hospitaldb")
+DB_CONN = os.getenv("DB_CONN", "postgresql://postgres:password@localhost:5432/CliniSight")
 EMBED_DIM = 1536  # OpenAI text-embedding-3-small dimension
 EMBEDDING_MODEL = "text-embedding-3-small"
 
