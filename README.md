@@ -11,6 +11,114 @@ A comprehensive FastAPI application for managing medical records, hospital guide
 - **Patient Records**: Comprehensive patient record management with semantic search
 - **Semantic Search**: AI-powered search across all medical content using embeddings
 
+## System Architecture
+
+The CliniSight system follows a multi-agent architecture with specialized components for data ingestion, processing, and intelligent analysis:
+
+```mermaid
+flowchart TB
+  subgraph Ingest
+    subgraph MCP_Fetchers
+      A1[PubMed MCP]
+      A2[ClinicalTrials.gov MCP]
+      A3[Arxiv MCP]
+    end
+    A4[Institutional Guidelines]
+    A5[Electronic health records]
+    A6[S3 Object Storage – Medical Images & Large Files]
+    A7[Freshness Cache – Last Fetch Timestamps]
+  end
+
+  subgraph Indexing
+    B1[Preprocessor & Normalizer]
+    B2[Embedding Service – Text & Image]
+    B3[Postgres + pgvector]
+    note1[Hospital data: Imaging, Test Reports, Doctor notes, Radiologist notes]
+    note2[Global data: Clinial Trials, Research paper, Guideline]
+  end
+
+  subgraph API
+    C1[Retrieval API – Postgres pgvector Search + S3 Links]
+    C2[Query Builder]
+    C3[Orchestrator – LangChain / LlamaIndex Style]
+  end
+
+  subgraph Agents
+    D1[Guideline Specialist]
+    D2[Research Analyst]
+    D3[Patient Context Advocate]
+    D4[Risk & Outcome Checker]
+    D5[Devil's Advocate]
+    D6[Moderator]
+  end
+
+  subgraph UI
+    E1[Patient Dashboard]
+    E2[Debate Transcript]
+    E3[Alert Feed]
+    E4[Evidence Map]
+  end
+
+  %% Freshness logic
+  A7 -->|Check freshness| A1
+  A7 -->|Check freshness| A2
+  A7 -->|Check freshness| A3
+
+  %% MCP to indexing
+  A1 --> B1
+  A2 --> B1
+  A3 --> B1
+  A4 --> B1
+  A5 --> B1
+  A6 --> B1
+
+  %% Indexing Flow
+  B1 --> B2 --> B3
+  A6 --> B3
+
+  %% Retrieval path from Indexing to Agents
+  B3 --> C1 --> C3
+  C3 --> D1
+  C3 --> D2
+  C3 --> D3
+  C3 --> D4
+  C3 --> D5
+
+  %% Agents feedback loop
+  D1 --> C3
+  D2 --> C3
+  D3 --> C3
+  D4 --> C3
+  D5 --> C3
+
+  %% Moderator to UI
+  C3 --> D6
+  D6 --> E2
+  D6 --> E4
+  D6 --> E3
+
+  %% Dashboard connection
+  E1 --> D3
+```
+
+### Architecture Components
+
+**Ingest Layer**: Handles data collection from multiple sources including PubMed, ClinicalTrials.gov, ArXiv, institutional guidelines, and electronic health records. Features intelligent freshness caching to optimize data retrieval.
+
+**Indexing Layer**: Processes and normalizes incoming data, generates embeddings for both text and images, and stores everything in a PostgreSQL database with pgvector for similarity search.
+
+**API Layer**: Provides retrieval services with vector search capabilities, query building, and orchestration similar to LangChain/LlamaIndex patterns.
+
+**Agents Layer**: Multi-agent system with specialized roles:
+- **Guideline Specialist**: Focuses on medical guidelines and protocols
+- **Research Analyst**: Analyzes research papers and clinical trials
+- **Patient Context Advocate**: Ensures patient-specific considerations
+- **Risk & Outcome Checker**: Evaluates potential risks and outcomes
+- **Devil's Advocate**: Provides contrarian viewpoints for balanced analysis
+- **Moderator**: Orchestrates agent interactions and synthesizes results
+
+**UI Layer**: User interfaces including patient dashboards, debate transcripts, alert feeds, and evidence mapping.
+
 ## Project Structure
 
 ```
@@ -194,4 +302,4 @@ The application uses:
 
 ## License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.
